@@ -3,6 +3,9 @@ var Manymation = function(target, property) {
 	var timer;
 	
 	var start = function(endValue, duration) {
+		var startValue = Number(target[property]);
+		var direction = (startValue <= endValue) ? 'increase' : 'decrease';
+		
 		// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
 		var tickCount = Math.round(duration / interval);
 		
@@ -17,7 +20,11 @@ var Manymation = function(target, property) {
 				tickIndex += 1;
 				
 				var progress = tickIndex / lastTickIndex;
-				var value = progress;
+				if ( direction === 'increase' ) {
+					var value = progress;
+				} else {
+					var value = 1 - progress;
+				}
 				target[property] = value;
 				
 				if ( tickIndex === lastTickIndex ) {

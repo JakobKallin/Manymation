@@ -30,4 +30,25 @@ describe('Manymation', function() {
 			expect(target.property).toBe(1);
 		});
 	});
+	
+	it('animates property from 1 to 0', function() {
+		var target = { property: 1 };
+		var animation = new Manymation(target, 'property');
+		
+		runs(function() {
+			animation.start(0, 1000);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0.4, 0.6);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			expect(target.property).toBe(0);
+		});
+	});
 });
