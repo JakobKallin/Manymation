@@ -137,4 +137,33 @@ describe('Manymation', function() {
 			expect(target.property).toBe(1);
 		});
 	});
+	
+	it('only rewinds animation once', function() {
+		var target = { property: undefined };
+		var animation = new Manymation(target, 'property', 1, 1000);
+		
+		runs(function() {
+			animation.play();
+		});
+		
+		waits(1500);
+		
+		runs(function() {
+			animation.rewind();
+		});
+		
+		waits(1500);
+		
+		runs(function() {
+			expect(target.property).toBe(0);
+			target.property = 1;
+			animation.rewind();
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(target.property).toBe(1);
+		});
+	});
 });

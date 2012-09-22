@@ -6,14 +6,15 @@ var Manymation = function(target, property, highestValue, duration) {
 	var tickIndex = -1;
 	var lastTickIndex = tickCount - 1;
 	
-	var hasStarted = false;
+	var hasStartedPlaying = false;
+	var hasStartedRewinding = false;
 	
 	var play = function() {
-		if ( hasStarted ) {
+		if ( hasStartedPlaying ) {
 			return;
 		}
 		
-		hasStarted = true;
+		hasStartedPlaying = true;
 		if ( tickCount === 0 ) {
 			target[property] = highestValue;
 		} else {
@@ -38,6 +39,11 @@ var Manymation = function(target, property, highestValue, duration) {
 	};
 	
 	var rewind = function() {
+		if ( hasStartedRewinding ) {
+			return;
+		}
+		
+		hasStartedRewinding = true;
 		window.clearInterval(timer);
 		
 		if ( tickCount === 0 ) {
