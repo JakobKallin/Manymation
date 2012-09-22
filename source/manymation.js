@@ -1,42 +1,50 @@
-var Manymation = function(target, property) {
+var Manymation = function(target, property, highestValue, duration) {
 	var interval = 50;
 	var timer;
+	// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
+	var tickCount = Math.round(duration / interval);
+	var tickIndex = -1;
+	var lastTickIndex = tickCount - 1;
 	
-	var start = function(endValue, duration) {
-		var startValue = Number(target[property]);
-		var direction = (startValue <= endValue) ? 'increase' : 'decrease';
+	var play = function() {
+		var startValue = 0;
+		target[property] = startValue;
 		
-		// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
-		var tickCount = Math.round(duration / interval);
+		var tick = function() {
+			tickIndex += 1;
+			
+			var progress = tickIndex / lastTickIndex;
+			var value = progress * highestValue;
+			target[property] = value;
+			
+			var animationIsOver = tickIndex === lastTickIndex;
+			if ( animationIsOver ) {
+				window.clearInterval(timer);
+			}
+		};
 		
-		if ( tickCount === 0 ) {
-			// If we don't do this, we would divide by zero when calculating amount.
-			target[property] = endValue;
-		} else {
-			var tickIndex = -1;
-			var lastTickIndex = tickCount - 1;
+		timer = window.setInterval(tick, interval);
+	};
+	
+	var rewind = function() {
+		var tick = function() {
+			tickIndex -= 1;
 			
-			var tick = function() {
-				tickIndex += 1;
-				
-				var progress = tickIndex / lastTickIndex;
-				if ( direction === 'increase' ) {
-					var value = progress;
-				} else {
-					var value = 1 - progress;
-				}
-				target[property] = value;
-				
-				if ( tickIndex === lastTickIndex ) {
-					window.clearInterval(timer);
-				}
-			};
+			var progress = tickIndex / lastTickIndex;
+			var value = progress * highestValue;
+			target[property] = value;
 			
-			var timer = window.setInterval(tick, interval);
-		}
+			var animationIsOver = tickIndex === 0;
+			if ( animationIsOver ) {
+				window.clearInterval(timer);
+			}
+		};
+		
+		timer = window.setInterval(tick, interval);
 	};
 	
 	return {
-		start: start
+		play: play,
+		rewind: rewind
 	};
 };

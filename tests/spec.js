@@ -10,12 +10,40 @@ describe('Manymation', function() {
 		});
 	});
 	
-	it('animates property from 0 to 1', function() {
-		var target = { property: 0 };
-		var animation = new Manymation(target, 'property');
+	var testOneWayAnimation = function(highestValue) {
+		var target = { property: undefined };
+		var animation = new Manymation(target, 'property', highestValue, 1000);
 		
 		runs(function() {
-			animation.start(1, 1000);
+			animation.play();
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			var middle = highestValue / 2;
+			var lowestMiddle = middle - 0.1;
+			var highestMiddle = middle + 0.1;
+			expect(target.property).toBeBetween(lowestMiddle, highestMiddle);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			expect(target.property).toBe(highestValue);
+		});
+	};
+	
+	it('animates property from 0 to 1', function() {
+		testOneWayAnimation(1);
+	});
+	
+	it('animates property from 0 to 1 and back again', function() {
+		var target = { property: undefined };
+		var animation = new Manymation(target, 'property', 1, 1000);
+		
+		runs(function() {
+			animation.play();
 		});
 		
 		waits(500);
@@ -28,15 +56,7 @@ describe('Manymation', function() {
 		
 		runs(function() {
 			expect(target.property).toBe(1);
-		});
-	});
-	
-	it('animates property from 1 to 0', function() {
-		var target = { property: 1 };
-		var animation = new Manymation(target, 'property');
-		
-		runs(function() {
-			animation.start(0, 1000);
+			animation.rewind();
 		});
 		
 		waits(500);
@@ -50,5 +70,9 @@ describe('Manymation', function() {
 		runs(function() {
 			expect(target.property).toBe(0);
 		});
+	});
+	
+	it('animates property to higher than 1', function() {
+		testOneWayAnimation(2);
 	});
 });
