@@ -35,11 +35,33 @@ describe('Manymation', function() {
 		});
 	};
 	
-	it('animates property from 0 to 1', function() {
+	it('animates property to 1', function() {
 		testOneWayAnimation(1);
 	});
 	
-	it('animates property from 0 to 1 and back again', function() {
+	it('animates property to higher than 1', function() {
+		testOneWayAnimation(2);
+	});
+	
+	it('animates property to lower than 1', function() {
+		testOneWayAnimation(0.5);
+	});
+	
+	it('animates constant animation', function() {
+		testOneWayAnimation(0);
+	});
+	
+	it('animates immediate animation', function() {
+		var target = { property: undefined };
+		var animation = new Manymation(target, 'property', 1, 0);
+		animation.play();
+		expect(target.property).toBe(1)
+		
+		animation.rewind();
+		expect(target.property).toBe(0);
+	});
+	
+	it('animates property and then rewinds', function() {
 		var target = { property: undefined };
 		var animation = new Manymation(target, 'property', 1, 1000);
 		
@@ -71,28 +93,6 @@ describe('Manymation', function() {
 		runs(function() {
 			expect(target.property).toBe(0);
 		});
-	});
-	
-	it('animates property to higher than 1', function() {
-		testOneWayAnimation(2);
-	});
-	
-	it('animates property to lower than 1', function() {
-		testOneWayAnimation(0.5);
-	});
-	
-	it('animates constant animation', function() {
-		testOneWayAnimation(0);
-	});
-	
-	it('animates immediate animation', function() {
-		var target = { property: undefined };
-		var animation = new Manymation(target, 'property', 1, 0);
-		animation.play();
-		expect(target.property).toBe(1)
-		
-		animation.rewind();
-		expect(target.property).toBe(0);
 	});
 	
 	it('stops animation in progress before rewinding', function() {
