@@ -6,7 +6,14 @@ var Manymation = function(target, property, highestValue, duration) {
 	var tickIndex = -1;
 	var lastTickIndex = tickCount - 1;
 	
+	var hasStarted = false;
+	
 	var play = function() {
+		if ( hasStarted ) {
+			return;
+		}
+		
+		hasStarted = true;
 		if ( tickCount === 0 ) {
 			target[property] = highestValue;
 		} else {

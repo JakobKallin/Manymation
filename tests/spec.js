@@ -115,4 +115,26 @@ describe('Manymation', function() {
 			expect(target.property).toBe(0);
 		});
 	});
+	
+	it('only plays animation once', function() {
+		var target = { property: undefined };
+		var animation = new Manymation(target, 'property', 1, 1000);
+		
+		runs(function() {
+			animation.play();
+			animation.play();
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0.4, 0.6);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			expect(target.property).toBe(1);
+		});
+	});
 });
