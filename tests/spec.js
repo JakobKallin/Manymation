@@ -94,4 +94,25 @@ describe('Manymation', function() {
 		animation.rewind();
 		expect(target.property).toBe(0);
 	});
+	
+	it('stops animation in progress before rewinding', function() {
+		var target = { property: undefined };
+		var animation = new Manymation(target, 'property', 1, 1000);
+		
+		runs(function() {
+			animation.play();
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			animation.rewind();
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			expect(target.property).toBe(0);
+		});
+	});
 });

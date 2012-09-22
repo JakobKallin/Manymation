@@ -31,6 +31,8 @@ var Manymation = function(target, property, highestValue, duration) {
 	};
 	
 	var rewind = function() {
+		window.clearInterval(timer);
+		
 		if ( tickCount === 0 ) {
 			target[property] = 0;
 		} else {
