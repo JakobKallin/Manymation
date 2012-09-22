@@ -22,8 +22,9 @@ describe('Manymation', function() {
 		
 		runs(function() {
 			var middle = highestValue / 2;
-			var lowestMiddle = middle - 0.1;
-			var highestMiddle = middle + 0.1;
+			var margin = highestValue / 10;
+			var lowestMiddle = middle - margin;
+			var highestMiddle = middle + margin;
 			expect(target.property).toBeBetween(lowestMiddle, highestMiddle);
 		});
 		
@@ -74,5 +75,23 @@ describe('Manymation', function() {
 	
 	it('animates property to higher than 1', function() {
 		testOneWayAnimation(2);
+	});
+	
+	it('animates property to lower than 1', function() {
+		testOneWayAnimation(0.5);
+	});
+	
+	it('animates constant animation', function() {
+		testOneWayAnimation(0);
+	});
+	
+	it('animates immediate animation', function() {
+		var target = { property: undefined };
+		var animation = new Manymation(target, 'property', 1, 0);
+		animation.play();
+		expect(target.property).toBe(1)
+		
+		animation.rewind();
+		expect(target.property).toBe(0);
 	});
 });

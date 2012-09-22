@@ -7,40 +7,48 @@ var Manymation = function(target, property, highestValue, duration) {
 	var lastTickIndex = tickCount - 1;
 	
 	var play = function() {
-		var startValue = 0;
-		target[property] = startValue;
-		
-		var tick = function() {
-			tickIndex += 1;
+		if ( tickCount === 0 ) {
+			target[property] = highestValue;
+		} else {
+			var startValue = 0;
+			target[property] = startValue;
 			
-			var progress = tickIndex / lastTickIndex;
-			var value = progress * highestValue;
-			target[property] = value;
+			var tick = function() {
+				tickIndex += 1;
+				
+				var progress = tickIndex / lastTickIndex;
+				var value = progress * highestValue;
+				target[property] = value;
+				
+				var animationIsOver = tickIndex === lastTickIndex;
+				if ( animationIsOver ) {
+					window.clearInterval(timer);
+				}
+			};
 			
-			var animationIsOver = tickIndex === lastTickIndex;
-			if ( animationIsOver ) {
-				window.clearInterval(timer);
-			}
-		};
-		
-		timer = window.setInterval(tick, interval);
+			timer = window.setInterval(tick, interval);
+		}
 	};
 	
 	var rewind = function() {
-		var tick = function() {
-			tickIndex -= 1;
+		if ( tickCount === 0 ) {
+			target[property] = 0;
+		} else {
+			var tick = function() {
+				tickIndex -= 1;
+				
+				var progress = tickIndex / lastTickIndex;
+				var value = progress * highestValue;
+				target[property] = value;
+				
+				var animationIsOver = tickIndex === 0;
+				if ( animationIsOver ) {
+					window.clearInterval(timer);
+				}
+			};
 			
-			var progress = tickIndex / lastTickIndex;
-			var value = progress * highestValue;
-			target[property] = value;
-			
-			var animationIsOver = tickIndex === 0;
-			if ( animationIsOver ) {
-				window.clearInterval(timer);
-			}
-		};
-		
-		timer = window.setInterval(tick, interval);
+			timer = window.setInterval(tick, interval);
+		}
 	};
 	
 	return {
