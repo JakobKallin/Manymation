@@ -15,16 +15,16 @@ describe('Manymation', function() {
 		var animation = new Manymation(target, 'property');
 		
 		runs(function() {
-			animation.start(1, 2000);
+			animation.start(1, 1000);
 		});
 		
-		waits(1000);
+		waits(500);
 		
 		runs(function() {
 			expect(target.property).toBeBetween(0.4, 0.6);
 		});
 		
-		waits(1500);
+		waits(1000);
 		
 		runs(function() {
 			expect(target.property).toBe(1);
