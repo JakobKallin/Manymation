@@ -1,10 +1,12 @@
-var Manymation = function(target, property, highestValue, duration) {
+var Manymation = function(duration) {
 	var interval = 50;
 	var timer;
 	// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
 	var tickCount = Math.round(duration / interval);
 	var tickIndex = -1;
 	var lastTickIndex = tickCount - 1;
+	
+	var animations = [];
 	
 	var hasStartedPlaying = false;
 	var hasStartedRewinding = false;
@@ -16,17 +18,23 @@ var Manymation = function(target, property, highestValue, duration) {
 		
 		hasStartedPlaying = true;
 		if ( tickCount === 0 ) {
-			target[property] = highestValue;
+			animations.map(function(anim) {
+				anim.target[anim.property] = anim.endValue;
+			});
 		} else {
 			var startValue = 0;
-			target[property] = startValue;
+			animations.map(function(anim) {
+				anim.target[anim.property] = startValue;
+			});
 			
 			var tick = function() {
 				tickIndex += 1;
 				
 				var progress = tickIndex / lastTickIndex;
-				var value = progress * highestValue;
-				target[property] = value;
+				animations.map(function(anim) {
+					var value = progress * anim.endValue;
+					anim.target[anim.property] = value;
+				});
 				
 				var animationIsOver = tickIndex === lastTickIndex;
 				if ( animationIsOver ) {
@@ -47,14 +55,18 @@ var Manymation = function(target, property, highestValue, duration) {
 		window.clearInterval(timer);
 		
 		if ( tickCount === 0 ) {
-			target[property] = 0;
+			animations.map(function(anim) {
+				anim.target[anim.property] = 0;
+			});
 		} else {
 			var tick = function() {
 				tickIndex -= 1;
 				
 				var progress = tickIndex / lastTickIndex;
-				var value = progress * highestValue;
-				target[property] = value;
+				animations.map(function(anim) {
+					var value = progress * anim.endValue;
+					anim.target[anim.property] = value;
+				});
 				
 				var animationIsOver = tickIndex === 0;
 				if ( animationIsOver ) {
@@ -66,8 +78,17 @@ var Manymation = function(target, property, highestValue, duration) {
 		}
 	};
 	
+	var track = function(target, property, endValue) {
+		animations.push({
+			target: target,
+			property: property,
+			endValue: endValue
+		});
+	};
+	
 	return {
 		play: play,
-		rewind: rewind
+		rewind: rewind,
+		track: track
 	};
 };
