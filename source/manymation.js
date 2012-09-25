@@ -9,9 +9,10 @@ var Manymation = function() {
 	
 	var hasStartedPlaying = false;
 	var hasStartedRewinding = false;
+	var hasBeenStopped = false;
 	
 	var play = function(duration) {
-		if ( hasStartedPlaying ) {
+		if ( hasStartedPlaying || hasBeenStopped ) {
 			return;
 		}
 		
@@ -47,7 +48,7 @@ var Manymation = function() {
 	};
 	
 	var rewind = function(duration) {
-		if ( hasStartedRewinding ) {
+		if ( hasStartedRewinding || hasBeenStopped ) {
 			return;
 		}
 		
@@ -85,6 +86,11 @@ var Manymation = function() {
 		}
 	};
 	
+	var stop = function() {
+		window.clearInterval(timer);
+		hasBeenStopped = true;
+	};
+	
 	var Animation = function(target, property, endValue) {
 		return {
 			endValue: endValue,
@@ -111,6 +117,7 @@ var Manymation = function() {
 	return {
 		play: play,
 		rewind: rewind,
+		stop: stop,
 		track: track
 	};
 };

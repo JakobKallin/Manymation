@@ -296,4 +296,67 @@ describe('Manymation', function() {
 			expect(target.property).toBeBetween(0.4, 0.6);
 		});
 	});
+	
+	it('stops animation when playing', function() {
+		var target = { property: undefined };
+		var animation = new Manymation();
+		animation.track(target, 'property', 1);
+		
+		runs(function() {
+			animation.play(1000);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			animation.stop();
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0.4, 0.6);
+		});
+	});
+	
+	it('stops animation when rewinding', function() {
+		var target = { property: undefined };
+		var animation = new Manymation();
+		animation.track(target, 'property', 1);
+		
+		runs(function() {
+			animation.play(0);
+			animation.rewind(1000);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			animation.stop();
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0.4, 0.6);
+		});
+	});
+	
+	it('does not play again once stopped', function() {
+		var target = { property: undefined };
+		var animation = new Manymation();
+		animation.track(target, 'property', 1);
+		
+		runs(function() {
+			animation.play(1000);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			animation.stop();
+			animation.play(0);
+			expect(target.property).toBeBetween(0.4, 0.6);
+		});
+	});
 });
