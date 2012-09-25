@@ -258,4 +258,11 @@ describe('Manymation', function() {
 			expect(target.property).toBe(0);
 		});
 	});
+	
+	it('sets starting value immediately', function() {
+		var target = { property: 2 };
+		var animation = new Manymation(1000);
+		animation.track(target, 'property', 1);
+		expect(target.property).toBe(0);
+	});
 });

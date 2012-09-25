@@ -22,11 +22,6 @@ var Manymation = function(duration) {
 				anim.target[anim.property] = anim.endValue;
 			});
 		} else {
-			var startValue = 0;
-			animations.map(function(anim) {
-				anim.target[anim.property] = startValue;
-			});
-			
 			var tick = function() {
 				tickIndex += 1;
 				
@@ -84,6 +79,8 @@ var Manymation = function(duration) {
 			property: property,
 			endValue: endValue
 		});
+		var startValue = 0;
+		target[property] = startValue;
 	};
 	
 	return {
