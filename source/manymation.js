@@ -1,22 +1,27 @@
-var Manymation = function(duration) {
+var Manymation = function() {
 	var interval = 50;
 	var timer;
-	// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
-	var tickCount = Math.round(duration / interval);
-	var tickIndex = -1;
-	var lastTickIndex = tickCount - 1;
-	
 	var animations = [];
+	
+	var tickCount;
+	var tickIndex;
+	var lastTickIndex;
 	
 	var hasStartedPlaying = false;
 	var hasStartedRewinding = false;
 	
-	var play = function() {
+	var play = function(duration) {
 		if ( hasStartedPlaying ) {
 			return;
 		}
 		
 		hasStartedPlaying = true;
+		
+		// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
+		tickCount = Math.round(duration / interval);
+		tickIndex = -1;
+		lastTickIndex = tickCount - 1;
+		
 		if ( tickCount === 0 ) {
 			animations.map(function(anim) {
 				anim.value = anim.endValue;
@@ -41,12 +46,19 @@ var Manymation = function(duration) {
 		}
 	};
 	
-	var rewind = function() {
+	var rewind = function(duration) {
 		if ( hasStartedRewinding ) {
 			return;
 		}
 		
 		hasStartedRewinding = true;
+		
+		// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
+		tickCount = Math.round(duration / interval);
+		var playProgress = tickIndex / lastTickIndex;
+		tickIndex = Math.round(tickCount * playProgress);
+		lastTickIndex = tickCount - 1;
+		
 		window.clearInterval(timer);
 		
 		if ( tickCount === 0 ) {
