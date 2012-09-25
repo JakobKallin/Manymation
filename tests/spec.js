@@ -198,4 +198,64 @@ describe('Manymation', function() {
 			expect(second.property).toBe(1);
 		});
 	});
+	
+	it('animates objects added while playing', function() {
+		var target = { property: undefined };
+		var animation = new Manymation(1000);
+		
+		runs(function() {
+			animation.play();
+		});
+		
+		waits(250);
+		
+		runs(function() {
+			animation.track(target, 'property', 1);
+		});
+		
+		waits(250);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0.4, 0.6);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			expect(target.property).toBe(1);
+		});
+	});
+	
+	it('animates objects added while rewinding', function() {
+		var target = { property: undefined };
+		var animation = new Manymation(1000);
+		
+		runs(function() {
+			animation.play();
+		});
+		
+		waits(1500);
+		
+		runs(function() {
+			animation.rewind();
+		});
+		
+		waits(250);
+		
+		runs(function() {
+			animation.track(target, 'property', 1);
+		});
+		
+		waits(250);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0.4, 0.6);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			expect(target.property).toBe(0);
+		});
+	});
 });
