@@ -265,4 +265,13 @@ describe('Manymation', function() {
 		animation.track(target, 'property', 1);
 		expect(target.property).toBe(0);
 	});
+	
+	it('prevents value from being NaN', function() {
+		expect(function() {
+			var target = { property: undefined };
+			var animation = new Manymation(0);
+			animation.track(target, 'property', NaN);
+			animation.play();
+		}).toThrow();
+	});
 });

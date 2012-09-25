@@ -19,7 +19,7 @@ var Manymation = function(duration) {
 		hasStartedPlaying = true;
 		if ( tickCount === 0 ) {
 			animations.map(function(anim) {
-				anim.target[anim.property] = anim.endValue;
+				anim.value = anim.endValue;
 			});
 		} else {
 			var tick = function() {
@@ -28,7 +28,7 @@ var Manymation = function(duration) {
 				var progress = tickIndex / lastTickIndex;
 				animations.map(function(anim) {
 					var value = progress * anim.endValue;
-					anim.target[anim.property] = value;
+					anim.value = value;
 				});
 				
 				var animationIsOver = tickIndex === lastTickIndex;
@@ -51,7 +51,7 @@ var Manymation = function(duration) {
 		
 		if ( tickCount === 0 ) {
 			animations.map(function(anim) {
-				anim.target[anim.property] = 0;
+				anim.value = 0;
 			});
 		} else {
 			var tick = function() {
@@ -60,7 +60,7 @@ var Manymation = function(duration) {
 				var progress = tickIndex / lastTickIndex;
 				animations.map(function(anim) {
 					var value = progress * anim.endValue;
-					anim.target[anim.property] = value;
+					anim.value = value;
 				});
 				
 				var animationIsOver = tickIndex === 0;
@@ -73,14 +73,27 @@ var Manymation = function(duration) {
 		}
 	};
 	
+	var Animation = function(target, property, endValue) {
+		return {
+			endValue: endValue,
+			set value(value) {
+				if ( isNaN(value) ) {
+					// This prevents a horrible bug in Chrome (and possibly other browsers) that emits a loud noise if the volume of an <audio> element is set to NaN.
+					// This should not normally happen, but it is a way of guarding against limitations of this library and bugs in its code.
+					throw new Error('Animation value is not a number.');
+				} else {
+					target[property] = value;
+				}
+			}
+		};
+	};
+	
 	var track = function(target, property, endValue) {
-		animations.push({
-			target: target,
-			property: property,
-			endValue: endValue
-		});
+		var anim = new Animation(target, property, endValue)
+		animations.push(anim);
+		
 		var startValue = 0;
-		target[property] = startValue;
+		anim.value = startValue;
 	};
 	
 	return {
