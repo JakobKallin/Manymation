@@ -275,11 +275,77 @@ describe('Manymation', function() {
 		});
 	});
 	
-	it('sets starting value immediately', function() {
+	it('sets starting value before start', function() {
 		var target = { property: 2 };
 		var animation = new Manymation();
 		animation.track(target, 'property', 1);
 		expect(target.property).toBe(0);
+	});
+	
+	it('sets starting value during play', function() {
+		var target = { property: 2 };
+		var animation = new Manymation();
+		
+		runs(function() {
+			animation.play(1000);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			animation.track(target, 'property', 1);
+			expect(target.property).toBeBetween(0.40, 0.60);
+		});
+	});
+	
+	it('sets starting value after play', function() {
+		var target = { property: 2 };
+		var animation = new Manymation();
+		
+		runs(function() {
+			animation.play(500);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			animation.track(target, 'property', 1);
+			expect(target.property).toBe(1);
+		});
+	});
+	
+	it('sets starting value during rewind', function() {
+		var target = { property: 2 };
+		var animation = new Manymation();
+		
+		runs(function() {
+			animation.play(0);
+			animation.rewind(1000);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			animation.track(target, 'property', 1);
+			expect(target.property).toBeBetween(0.4, 0.6);
+		});
+	});
+	
+	it('sets starting value after rewind', function() {
+		var target = { property: 2 };
+		var animation = new Manymation();
+		
+		runs(function() {
+			animation.play(0);
+			animation.rewind(500);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			animation.track(target, 'property', 1);
+			expect(target.property).toBe(0);
+		});
 	});
 	
 	it('prevents value from being NaN', function() {
@@ -297,12 +363,7 @@ describe('Manymation', function() {
 		animation.track(target, 'property', 1);
 		
 		runs(function() {
-			animation.play(500);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
+			animation.play(0);
 			animation.rewind(1000);
 		});
 		

@@ -33,9 +33,8 @@ var Manymation = function() {
 			var tick = function() {
 				tickIndex += 1;
 				
-				var progress = tickIndex / lastTickIndex;
 				animations.map(function(anim) {
-					var value = progress * anim.endValue;
+					var value = progress() * anim.endValue;
 					anim.value = value;
 				});
 				
@@ -57,8 +56,8 @@ var Manymation = function() {
 		hasStartedRewinding = true;
 		
 		// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
+		var playProgress = progress(); // Save the current progress before calculating new ticks.
 		tickCount = Math.round(duration / interval);
-		var playProgress = tickIndex / lastTickIndex;
 		tickIndex = Math.round(tickCount * playProgress);
 		lastTickIndex = tickCount - 1;
 		
@@ -72,9 +71,8 @@ var Manymation = function() {
 			var tick = function() {
 				tickIndex -= 1;
 				
-				var progress = tickIndex / lastTickIndex;
 				animations.map(function(anim) {
-					var value = progress * anim.endValue;
+					var value = progress() * anim.endValue;
 					anim.value = value;
 				});
 				
@@ -121,8 +119,19 @@ var Manymation = function() {
 		var anim = new Animation(target, property, endValue)
 		animations.push(anim);
 		
-		var startValue = 0;
+		var startValue = progress() * endValue;
 		anim.value = startValue;
+	};
+	
+	var progress = function() {
+		if ( tickCount === 0 ) {
+			return (hasStartedPlaying) ? 1 : 0;
+		}
+		else if ( tickIndex === -1 || !hasStartedPlaying ) {
+			return 0;
+		} else {
+			return tickIndex / lastTickIndex;
+		}
 	};
 	
 	return {
