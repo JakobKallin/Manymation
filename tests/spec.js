@@ -48,6 +48,22 @@ describe('Manymation', function() {
 		testOneWayAnimation(0.5);
 	});
 	
+	it('animates empty animation', function() {
+		var animation = new Manymation();
+		
+		runs(function() {
+			animation.play(500);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			animation.rewind(500);
+		});
+		
+		waits(1000);
+	});
+	
 	it('animates constant animation', function() {
 		testOneWayAnimation(0);
 	});
@@ -357,6 +373,30 @@ describe('Manymation', function() {
 			animation.stop();
 			animation.play(0);
 			expect(target.property).toBeBetween(0.4, 0.6);
+		});
+	});
+	
+	it('signals end of rewind', function() {
+		var animation = new Manymation();
+		var signaled = false;
+		animation.onRewindEnded(function() {
+			signaled = true;
+		});
+		
+		runs(function() {
+			animation.play(500);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			animation.rewind(500);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			expect(signaled).toBe(true);
 		});
 	});
 });
