@@ -91,7 +91,7 @@ describe('Manymation', function() {
 		waits(500);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 		
 		waits(1000);
@@ -104,7 +104,7 @@ describe('Manymation', function() {
 		waits(500);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 		
 		waits(1000);
@@ -203,8 +203,8 @@ describe('Manymation', function() {
 		waits(500);
 		
 		runs(function() {
-			expect(first.property).toBeBetween(0.4, 0.6);
-			expect(second.property).toBeBetween(0.4, 0.6);
+			expect(first.property).toBeBetween(0.3, 0.7);
+			expect(second.property).toBeBetween(0.3, 0.7);
 		});
 		
 		waits(1000);
@@ -232,7 +232,7 @@ describe('Manymation', function() {
 		waits(250);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 		
 		waits(1000);
@@ -265,7 +265,7 @@ describe('Manymation', function() {
 		waits(250);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 		
 		waits(1000);
@@ -294,7 +294,7 @@ describe('Manymation', function() {
 		
 		runs(function() {
 			animation.track(target, 'property', 1);
-			expect(target.property).toBeBetween(0.40, 0.60);
+			expect(target.property).toBeBetween(0.30, 0.70);
 		});
 	});
 	
@@ -327,7 +327,7 @@ describe('Manymation', function() {
 		
 		runs(function() {
 			animation.track(target, 'property', 1);
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 	});
 	
@@ -370,7 +370,7 @@ describe('Manymation', function() {
 		waits(500);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 	});
 	
@@ -392,7 +392,7 @@ describe('Manymation', function() {
 		waits(500);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 	});
 	
