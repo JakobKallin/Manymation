@@ -438,11 +438,11 @@ describe('Manymation', function() {
 	});
 	
 	it('signals end of rewind', function() {
-		var animation = new Manymation();
-		var signaled = false;
-		animation.onRewindEnded(function() {
+		var onRewindEnded = function() {
 			signaled = true;
-		});
+		};
+		var animation = new Manymation(onRewindEnded);
+		var signaled = false;
 		
 		runs(function() {
 			animation.play(500);
@@ -459,6 +459,18 @@ describe('Manymation', function() {
 		runs(function() {
 			expect(signaled).toBe(true);
 		});
+	});
+	
+	it('signals end of immediate rewind', function() {
+		var onRewindEnded = function() {
+			signaled = true;
+		};
+		var animation = new Manymation(onRewindEnded);
+		var signaled = false;
+		
+		animation.play(0);
+		animation.rewind(0);
+		expect(signaled).toBe(true);
 	});
 	
 	it('signals rewinding state', function() {
