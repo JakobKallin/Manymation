@@ -460,4 +460,28 @@ describe('Manymation', function() {
 			expect(signaled).toBe(true);
 		});
 	});
+	
+	it('signals rewinding state', function() {
+		var animation = new Manymation();
+		expect(animation.isRewinding).toBe(false);
+		
+		animation.play(0);
+		expect(animation.isRewinding).toBe(false);
+		
+		runs(function() {
+			animation.rewind(500);
+		});
+		
+		waits(250);
+		
+		runs(function() {
+			expect(animation.isRewinding).toBe(true);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(animation.isRewinding).toBe(false);
+		});
+	});
 });
