@@ -149,7 +149,7 @@ describe('Manymation', function() {
 		waits(500);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 		
 		waits(1000);
@@ -415,7 +415,7 @@ describe('Manymation', function() {
 		waits(500);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 	});
 	
@@ -433,7 +433,7 @@ describe('Manymation', function() {
 		runs(function() {
 			animation.stop();
 			animation.play(0);
-			expect(target.property).toBeBetween(0.4, 0.6);
+			expect(target.property).toBeBetween(0.3, 0.7);
 		});
 	});
 	
