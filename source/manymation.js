@@ -127,9 +127,6 @@ var Manymation = function(onRewindEnded) {
 		var ratio;
 		
 		if ( elapsed === 0 ) {
-			ratio = (hasStartedPlaying) ? 1 : 0;
-		}
-		else if ( !hasStartedPlaying ) {
 			ratio = 0;
 		} else {
 			ratio = elapsed / duration;
