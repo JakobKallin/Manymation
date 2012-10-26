@@ -1,69 +1,65 @@
+window.requestAnimationFrame =
+	window.webkitRequestAnimationFrame ||
+	window.mozRequestAnimationFrame;
+
 var Manymation = function(onRewindEnded) {
-	var interval = 50;
-	var timer;
 	var animations = [];
 	
-	var tickCount;
-	var tickIndex;
-	var lastTickIndex;
-	
+	var duration = 0;
+	var elapsed = 0;
 	var hasStartedPlaying = false;
 	var hasStartedRewinding = false;
-	var hasEnded = false
+	var hasEnded = false;
+	var hasBeenStopped = false;
 	
 	var rewindListeners = [];
 	
-	var play = function(duration) {
+	var play = function(newDuration) {
+		duration = newDuration;
+		
 		if ( hasStartedPlaying || hasEnded ) {
 			return;
 		}
 		
 		hasStartedPlaying = true;
 		
-		// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
-		tickCount = Math.round(duration / interval);
-		tickIndex = -1;
-		lastTickIndex = tickCount - 1;
-		
-		if ( tickCount === 0 ) {
+		if ( duration === 0 ) {
 			animations.map(function(anim) {
 				anim.value = anim.endValue;
 			});
 		} else {
-			var tick = function() {
-				tickIndex += 1;
+			var start = window.mozAnimationStartTime || Number(new Date());
+			
+			var tick = function tick(time) {
+				time = time || Number(new Date());
+				elapsed = time - start;
 				
 				animations.map(function(anim) {
-					var value = progress() * anim.endValue;
+					var value = progress(duration) * anim.endValue;
 					anim.value = value;
 				});
+				var animationIsOver = elapsed >= duration;
 				
-				var animationIsOver = tickIndex === lastTickIndex;
-				if ( animationIsOver ) {
-					window.clearInterval(timer);
+				if ( !animationIsOver && !hasBeenStopped ) {
+					window.requestAnimationFrame(tick);
 				}
 			};
 			
-			timer = window.setInterval(tick, interval);
+			window.requestAnimationFrame(tick);
 		}
 	};
 	
-	var rewind = function(duration) {
+	var rewind = function(newDuration) {
+		duration = newDuration;
+		
 		if ( hasStartedRewinding || hasEnded ) {
 			return;
 		}
 		
+		elapsed = 0;
 		hasStartedRewinding = true;
 		
-		// If we don't round, we might get a non-integer tick count, which would break the conditional at the end of the tick() function.
-		var playProgress = progress(); // Save the current progress before calculating new ticks.
-		tickCount = Math.round(duration / interval);
-		tickIndex = Math.round(tickCount * playProgress);
-		lastTickIndex = tickCount - 1;
-		
-		window.clearInterval(timer);
-		
-		if ( tickCount === 0 ) {
+		if ( duration === 0 ) {
 			animations.map(function(anim) {
 				anim.value = 0;
 			});
@@ -72,30 +68,34 @@ var Manymation = function(onRewindEnded) {
 				onRewindEnded();
 			}
 		} else {
-			var tick = function() {
-				tickIndex -= 1;
+			var start = window.mozAnimationStartTime || Number(new Date());
+			
+			var tick = function tick(time) {
+				time = time || Number(new Date());
+				elapsed = time - start;
 				
 				animations.map(function(anim) {
-					var value = progress() * anim.endValue;
+					var value = progress(duration) * anim.endValue;
 					anim.value = value;
 				});
+				var animationIsOver = elapsed >= duration;
 				
-				var animationIsOver = tickIndex === 0;
 				if ( animationIsOver ) {
-					window.clearInterval(timer);
 					hasEnded = true;
 					if ( onRewindEnded ) {
 						onRewindEnded();
 					}
+				} else if ( !hasBeenStopped ) {
+					window.requestAnimationFrame(tick);
 				}
 			};
 			
-			timer = window.setInterval(tick, interval);
+			window.requestAnimationFrame(tick);
 		}
 	};
 	
 	var stop = function() {
-		window.clearInterval(timer);
+		hasBeenStopped = true;
 		hasEnded = true;
 	};
 	
@@ -108,7 +108,8 @@ var Manymation = function(onRewindEnded) {
 					// This should not normally happen, but it is a way of guarding against limitations of this library and bugs in its code.
 					throw new Error('Animation value is not a number.');
 				} else {
-					target[property] = value;
+					var roundedValue = Math.min(Math.max(value, 0), endValue);
+					target[property] = roundedValue;
 				}
 			}
 		};
@@ -118,18 +119,26 @@ var Manymation = function(onRewindEnded) {
 		var anim = new Animation(target, property, endValue)
 		animations.push(anim);
 		
-		var startValue = progress() * endValue;
+		var startValue = progress(duration) * endValue;
 		anim.value = startValue;
 	};
 	
-	var progress = function() {
-		if ( tickCount === 0 ) {
-			return (hasStartedPlaying) ? 1 : 0;
+	var progress = function(duration) {
+		var ratio;
+		
+		if ( elapsed === 0 ) {
+			ratio = (hasStartedPlaying) ? 1 : 0;
 		}
-		else if ( tickIndex === -1 || !hasStartedPlaying ) {
-			return 0;
+		else if ( !hasStartedPlaying ) {
+			ratio = 0;
 		} else {
-			return tickIndex / lastTickIndex;
+			ratio = elapsed / duration;
+		}
+		
+		if ( hasStartedRewinding ) {
+			return 1 - ratio;
+		} else {
+			return ratio;
 		}
 	};
 	
