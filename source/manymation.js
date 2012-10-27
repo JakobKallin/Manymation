@@ -8,6 +8,7 @@ var Manymation = function(onRewindEnded) {
 	var duration = 0;
 	var elapsed = 0;
 	var hasStartedPlaying = false;
+	var hasStoppedPlaying = false;
 	var hasStartedRewinding = false;
 	var hasEnded = false;
 	var hasBeenStopped = false;
@@ -24,6 +25,7 @@ var Manymation = function(onRewindEnded) {
 		hasStartedPlaying = true;
 		
 		if ( duration === 0 ) {
+			hasStoppedPlaying = true;
 			animations.map(function(anim) {
 				anim.value = anim.endValue;
 			});
@@ -40,7 +42,9 @@ var Manymation = function(onRewindEnded) {
 				});
 				var animationIsOver = elapsed >= duration;
 				
-				if ( !animationIsOver && !hasBeenStopped ) {
+				if ( animationIsOver ) {
+					hasStoppedPlaying = true;
+				} else if ( !animationIsOver && !hasBeenStopped ) {
 					window.requestAnimationFrame(tick);
 				}
 			};
@@ -50,7 +54,7 @@ var Manymation = function(onRewindEnded) {
 	};
 	
 	var rewind = function(newDuration) {
-		duration = newDuration;
+		duration = progress(duration) * newDuration;
 		
 		if ( hasStartedRewinding || hasEnded ) {
 			return;
@@ -126,8 +130,12 @@ var Manymation = function(onRewindEnded) {
 	var progress = function(duration) {
 		var ratio;
 		
-		if ( elapsed === 0 ) {
+		if ( !hasStartedPlaying ) {
 			ratio = 0;
+		} else if ( elapsed === 0 && hasStartedPlaying && !hasStoppedPlaying ) {
+			ratio = 0;
+		} else if ( elapsed === 0 && hasStoppedPlaying ) {
+			ratio = 1;
 		} else {
 			ratio = elapsed / duration;
 		}

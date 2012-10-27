@@ -374,6 +374,50 @@ describe('Manymation', function() {
 		});
 	});
 	
+	it('remembers progress when rewinding', function() {
+		var target = { property: undefined };
+		var animation = new Manymation();
+		animation.track(target, 'property', 1);
+		
+		runs(function() {
+			animation.play(2000);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			animation.rewind(2000);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0, 0.1);
+		});
+	});
+	
+	it('remembers progress when rewinding with different duration', function() {
+		var target = { property: undefined };
+		var animation = new Manymation();
+		animation.track(target, 'property', 1);
+		
+		runs(function() {
+			animation.play(2000);
+		});
+		
+		waits(1000);
+		
+		runs(function() {
+			animation.rewind(1000);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0, 0.1);
+		});
+	});
+	
 	it('stops animation when playing', function() {
 		var target = { property: undefined };
 		var animation = new Manymation();
