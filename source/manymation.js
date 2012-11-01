@@ -2,158 +2,128 @@ window.requestAnimationFrame =
 	window.webkitRequestAnimationFrame ||
 	window.mozRequestAnimationFrame;
 
-var Manymation = function(onRewindEnded) {
-	var animations = [];
-	
-	var duration = 0;
+var Manymation = function() {
+	var targets = [];
 	var elapsed = 0;
-	var hasStartedPlaying = false;
-	var hasStoppedPlaying = false;
-	var hasStartedRewinding = false;
-	var hasEnded = false;
-	var hasBeenStopped = false;
+	var duration = 0;
+	var onEnded;
+	var reverse = false;
+	var start = 0;
+	var isRunning = false;
+	var isPlaying = false;
+	var isReversing = false;
 	
-	var rewindListeners = [];
-	
-	var play = function(newDuration) {
-		duration = newDuration;
+	var tick = function tick(time) {
+		time = time || Number(new Date());
+		elapsed = time - start;
 		
-		if ( hasStartedPlaying || hasEnded ) {
-			return;
-		}
-		
-		hasStartedPlaying = true;
-		
-		if ( duration === 0 ) {
-			hasStoppedPlaying = true;
-			animations.map(function(anim) {
-				anim.value = anim.endValue;
-			});
+		var isOver = elapsed >= duration || !isRunning;
+		if ( isOver ) {
+			end(onEnded);
 		} else {
-			var start = window.mozAnimationStartTime || Number(new Date());
-			
-			var tick = function tick(time) {
-				time = time || Number(new Date());
-				elapsed = time - start;
-				
-				animations.map(function(anim) {
-					var value = progress(duration) * anim.endValue;
-					anim.value = value;
-				});
-				var animationIsOver = elapsed >= duration;
-				
-				if ( animationIsOver ) {
-					hasStoppedPlaying = true;
-				} else if ( !animationIsOver && !hasBeenStopped ) {
-					window.requestAnimationFrame(tick);
-				}
-			};
-			
+			targets.map(function(target) {
+				target.update(elapsed);
+			});
 			window.requestAnimationFrame(tick);
 		}
 	};
 	
-	var rewind = function(newDuration) {
-		duration = progress(duration) * newDuration;
-		
-		if ( hasStartedRewinding || hasEnded ) {
-			return;
+	var run = function(newDuration, newOnEnded, newReverse) {
+		if ( isRunning ) {
+			complete();
 		}
 		
 		elapsed = 0;
-		hasStartedRewinding = true;
+		duration = newDuration;
+		onEnded = newOnEnded;
+		reverse = newReverse;
+		start = window.mozAnimationStartTime || Number(new Date());
+		
+		isRunning = true;
+		if ( reverse ) {
+			isReversing = true;
+		} else {
+			isPlaying = true;
+		}
 		
 		if ( duration === 0 ) {
-			animations.map(function(anim) {
-				anim.value = 0;
-			});
-			hasEnded = true;
-			if ( onRewindEnded ) {
-				onRewindEnded();
-			}
+			end(onEnded);
 		} else {
-			var start = window.mozAnimationStartTime || Number(new Date());
-			
-			var tick = function tick(time) {
-				time = time || Number(new Date());
-				elapsed = time - start;
-				
-				animations.map(function(anim) {
-					var value = progress(duration) * anim.endValue;
-					anim.value = value;
-				});
-				var animationIsOver = elapsed >= duration;
-				
-				if ( animationIsOver ) {
-					hasEnded = true;
-					if ( onRewindEnded ) {
-						onRewindEnded();
-					}
-				} else if ( !hasBeenStopped ) {
-					window.requestAnimationFrame(tick);
-				}
-			};
-			
 			window.requestAnimationFrame(tick);
 		}
 	};
 	
-	var stop = function() {
-		hasBeenStopped = true;
-		hasEnded = true;
+	var play = function(duration, onEnded) {
+		run(duration, onEnded, false);
 	};
 	
-	var Animation = function(target, property, endValue) {
+	var reverse = function(duration, onEnded) {
+		run(duration, onEnded, true);
+	};
+	
+	var end = function() {
+		if ( onEnded ) {
+			onEnded();
+		}
+		complete();
+	};
+	
+	var complete = function() {
+		targets.map(function(target) {
+			target.update(duration);
+		});
+		isRunning = false;
+		isPlaying = false;
+		isReversing = false;
+	};
+	
+	var Target = function(object, property, endValue) {
 		return {
-			endValue: endValue,
-			set value(value) {
+			update: function(elapsed) {
+				var value = progress(elapsed) * endValue;
+				if ( reverse ) {
+					value = endValue - value;
+				}
+				
 				if ( isNaN(value) ) {
 					// This prevents a horrible bug in Chrome (and possibly other browsers) that emits a loud noise if the volume of an <audio> element is set to NaN.
 					// This should not normally happen, but it is a way of guarding against limitations of this library and bugs in its code.
 					throw new Error('Animation value is not a number.');
 				} else {
 					var roundedValue = Math.min(Math.max(value, 0), endValue);
-					target[property] = roundedValue;
+					object[property] = roundedValue;
 				}
 			}
 		};
 	};
 	
-	var track = function(target, property, endValue) {
-		var anim = new Animation(target, property, endValue)
-		animations.push(anim);
+	var track = function(object, property, endValue) {
+		var target = new Target(object, property, endValue)
+		targets.push(target);
 		
-		var startValue = progress(duration) * endValue;
-		anim.value = startValue;
+		if ( isRunning ) {
+			target.update(elapsed);
+		}
 	};
 	
-	var progress = function(duration) {
-		var ratio;
-		
-		if ( !hasStartedPlaying ) {
-			ratio = 0;
-		} else if ( elapsed === 0 && hasStartedPlaying && !hasStoppedPlaying ) {
-			ratio = 0;
-		} else if ( elapsed === 0 && hasStoppedPlaying ) {
-			ratio = 1;
+	var progress = function(elapsed) {
+		if ( elapsed === duration ) {
+			return 1;
 		} else {
-			ratio = elapsed / duration;
-		}
-		
-		if ( hasStartedRewinding ) {
-			return 1 - ratio;
-		} else {
-			return ratio;
+			return elapsed / duration;
 		}
 	};
 	
 	return {
-		play: play,
-		rewind: rewind,
-		stop: stop,
 		track: track,
-		get isRewinding() {
-			return hasStartedRewinding && !hasEnded;
+		play: play,
+		reverse: reverse,
+		complete: complete,
+		get isPlaying() {
+			return isPlaying;
+		},
+		get isReversing() {
+			return isReversing;
 		}
 	};
 };

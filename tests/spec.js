@@ -10,42 +10,78 @@ describe('Manymation', function() {
 		});
 	});
 	
-	var testOneWayAnimation = function(highestValue) {
+	it('animates from zero to positive', function() {
 		var target = { property: undefined };
 		var animation = new Manymation();
-		animation.track(target, 'property', highestValue);
+		animation.track(target, 'property', 2);
 		
 		runs(function() {
-			animation.play(1000);
+			animation.play(500);
+		});
+		
+		waits(250);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0.8, 1.2);
 		});
 		
 		waits(500);
 		
 		runs(function() {
-			var middle = highestValue / 2;
-			var margin = highestValue / 10;
-			var lowestMiddle = middle - margin;
-			var highestMiddle = middle + margin;
-			expect(target.property).toBeBetween(lowestMiddle, highestMiddle);
+			expect(target.property).toBe(2);
 		});
-		
-		waits(1000);
+	});
+	
+	it('reverses from positive to zero', function() {
+		var target = { property: undefined };
+		var animation = new Manymation();
+		animation.track(target, 'property', 2);
 		
 		runs(function() {
-			expect(target.property).toBe(highestValue);
+			animation.reverse(500);
 		});
-	};
-	
-	it('animates property to 1', function() {
-		testOneWayAnimation(1);
+		
+		waits(250);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0.8, 1.2);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(target.property).toBe(0);
+		});
 	});
 	
-	it('animates property to higher than 1', function() {
-		testOneWayAnimation(2);
+	it('animates constant animation', function() {
+		var target = { property: undefined };
+		var animation = new Manymation();
+		animation.track(target, 'property', 0);
+		
+		runs(function() {
+			animation.play(500);
+		});
+		
+		waits(250);
+		
+		runs(function() {
+			expect(target.property).toBe(0);
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(target.property).toBe(0);
+		});
 	});
 	
-	it('animates property to lower than 1', function() {
-		testOneWayAnimation(0.5);
+	it('animates immediate animation', function() {
+		var target = { property: undefined };
+		var animation = new Manymation();
+		animation.track(target, 'property', 2);
+		animation.play(0);
+		expect(target.property).toBe(2)
 	});
 	
 	it('animates empty animation', function() {
@@ -56,136 +92,68 @@ describe('Manymation', function() {
 		});
 		
 		waits(1000);
+	});
+	
+	it('plays and then reverses', function() {
+		var target = { property: undefined };
+		var animation = new Manymation();
+		animation.track(target, 'property', 2);
 		
 		runs(function() {
-			animation.rewind(500);
+			animation.play(500);
 		});
 		
-		waits(1000);
-	});
-	
-	it('animates constant animation', function() {
-		testOneWayAnimation(0);
-	});
-	
-	it('animates immediate animation', function() {
-		var target = { property: undefined };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
-		animation.play(0);
-		expect(target.property).toBe(1)
-		
-		animation.rewind(0);
-		expect(target.property).toBe(0);
-	});
-	
-	it('animates property and then rewinds', function() {
-		var target = { property: undefined };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
+		waits(250);
 		
 		runs(function() {
-			animation.play(1000);
+			expect(target.property).toBeBetween(0.8, 1.2);
 		});
 		
 		waits(500);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.3, 0.7);
+			expect(target.property).toBe(2);
+			animation.reverse(500);
 		});
 		
-		waits(1000);
+		waits(250);
 		
 		runs(function() {
-			expect(target.property).toBe(1);
-			animation.rewind(1000);
+			expect(target.property).toBeBetween(0.8, 1.2);
 		});
 		
 		waits(500);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0.3, 0.7);
-		});
-		
-		waits(1000);
 		
 		runs(function() {
 			expect(target.property).toBe(0);
 		});
 	});
 	
-	it('stops animation in progress before rewinding', function() {
+	it('plays after interrupting', function() {
 		var target = { property: undefined };
 		var animation = new Manymation();
-		animation.track(target, 'property', 1);
+		animation.track(target, 'property', 2);
 		
 		runs(function() {
-			animation.play(1000);
+			animation.play(500);
+		});
+		
+		waits(250);
+		
+		runs(function() {
+			animation.play(500);
+		});
+		
+		waits(250);
+		
+		runs(function() {
+			expect(target.property).toBeBetween(0.8, 1.2);
 		});
 		
 		waits(500);
 		
 		runs(function() {
-			animation.rewind(1000);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			expect(target.property).toBe(0);
-		});
-	});
-	
-	it('only plays animation once', function() {
-		var target = { property: undefined };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
-		
-		runs(function() {
-			animation.play(1000);
-			animation.play(1000);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0.3, 0.7);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			expect(target.property).toBe(1);
-		});
-	});
-	
-	it('only rewinds animation once', function() {
-		var target = { property: undefined };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
-		
-		runs(function() {
-			animation.play(1000);
-		});
-		
-		waits(1500);
-		
-		runs(function() {
-			animation.rewind(1000);
-		});
-		
-		waits(1500);
-		
-		runs(function() {
-			expect(target.property).toBe(0);
-			target.property = 1;
-			animation.rewind(1000);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			expect(target.property).toBe(1);
+			expect(target.property).toBe(2);
 		});
 	});
 	
@@ -195,23 +163,23 @@ describe('Manymation', function() {
 		
 		runs(function() {
 			var animation = new Manymation();
-			animation.track(first, 'property', 1);
-			animation.track(second, 'property', 1);
+			animation.track(first, 'property', 2);
+			animation.track(second, 'property', 2);
 			animation.play(1000);
 		});
 		
 		waits(500);
 		
 		runs(function() {
-			expect(first.property).toBeBetween(0.3, 0.7);
-			expect(second.property).toBeBetween(0.3, 0.7);
+			expect(first.property).toBeBetween(0.8, 1.2);
+			expect(second.property).toBeBetween(0.8, 1.2);
 		});
 		
 		waits(1000);
 		
 		runs(function() {
-			expect(first.property).toBe(1);
-			expect(second.property).toBe(1);
+			expect(first.property).toBe(2);
+			expect(second.property).toBe(2);
 		});
 	});
 	
@@ -226,23 +194,23 @@ describe('Manymation', function() {
 		waits(250);
 		
 		runs(function() {
-			animation.track(target, 'property', 1);
+			animation.track(target, 'property', 2);
 		});
 		
 		waits(250);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.3, 0.7);
+			expect(target.property).toBeBetween(0.8, 1.2);
 		});
 		
 		waits(1000);
 		
 		runs(function() {
-			expect(target.property).toBe(1);
+			expect(target.property).toBe(2);
 		});
 	});
 	
-	it('animates objects added while rewinding', function() {
+	it('sets starting value during play', function() {
 		var target = { property: undefined };
 		var animation = new Manymation();
 		
@@ -250,101 +218,11 @@ describe('Manymation', function() {
 			animation.play(1000);
 		});
 		
-		waits(1500);
-		
-		runs(function() {
-			animation.rewind(1000);
-		});
-		
-		waits(250);
-		
-		runs(function() {
-			animation.track(target, 'property', 1);
-		});
-		
-		waits(250);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0.3, 0.7);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			expect(target.property).toBe(0);
-		});
-	});
-	
-	it('sets starting value before start', function() {
-		var target = { property: 2 };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
-		expect(target.property).toBe(0);
-	});
-	
-	it('sets starting value during play', function() {
-		var target = { property: 2 };
-		var animation = new Manymation();
-		
-		runs(function() {
-			animation.play(1000);
-		});
-		
 		waits(500);
 		
 		runs(function() {
-			animation.track(target, 'property', 1);
-			expect(target.property).toBeBetween(0.30, 0.70);
-		});
-	});
-	
-	it('sets starting value after play', function() {
-		var target = { property: 2 };
-		var animation = new Manymation();
-		
-		runs(function() {
-			animation.play(500);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			animation.track(target, 'property', 1);
-			expect(target.property).toBe(1);
-		});
-	});
-	
-	it('sets starting value during rewind', function() {
-		var target = { property: 2 };
-		var animation = new Manymation();
-		
-		runs(function() {
-			animation.play(0);
-			animation.rewind(1000);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			animation.track(target, 'property', 1);
-			expect(target.property).toBeBetween(0.3, 0.7);
-		});
-	});
-	
-	it('sets starting value after rewind', function() {
-		var target = { property: 2 };
-		var animation = new Manymation();
-		
-		runs(function() {
-			animation.play(0);
-			animation.rewind(500);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			animation.track(target, 'property', 1);
-			expect(target.property).toBe(0);
+			animation.track(target, 'property', 2);
+			expect(target.property).toBeBetween(0.8, 1.2);
 		});
 	});
 	
@@ -357,71 +235,10 @@ describe('Manymation', function() {
 		}).toThrow();
 	});
 	
-	it('allows different duration when rewinding', function() {
-		var target = { property: undefined };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
-		
-		runs(function() {
-			animation.play(0);
-			animation.rewind(1000);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0.3, 0.7);
-		});
-	});
-	
-	it('remembers progress when rewinding', function() {
-		var target = { property: undefined };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
-		
-		runs(function() {
-			animation.play(2000);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			animation.rewind(2000);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0, 0.1);
-		});
-	});
-	
-	it('remembers progress when rewinding with different duration', function() {
-		var target = { property: undefined };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
-		
-		runs(function() {
-			animation.play(2000);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			animation.rewind(1000);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0, 0.1);
-		});
-	});
-	
 	it('stops animation when playing', function() {
 		var target = { property: undefined };
 		var animation = new Manymation();
-		animation.track(target, 'property', 1);
+		animation.track(target, 'property', 2);
 		
 		runs(function() {
 			animation.play(1000);
@@ -430,114 +247,13 @@ describe('Manymation', function() {
 		waits(500);
 		
 		runs(function() {
-			animation.stop();
+			animation.complete();
 		});
 		
 		waits(500);
 		
 		runs(function() {
-			expect(target.property).toBeBetween(0.3, 0.7);
-		});
-	});
-	
-	it('stops animation when rewinding', function() {
-		var target = { property: undefined };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
-		
-		runs(function() {
-			animation.play(0);
-			animation.rewind(1000);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			animation.stop();
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0.3, 0.7);
-		});
-	});
-	
-	it('does not play again once stopped', function() {
-		var target = { property: undefined };
-		var animation = new Manymation();
-		animation.track(target, 'property', 1);
-		
-		runs(function() {
-			animation.play(1000);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			animation.stop();
-			animation.play(0);
-			expect(target.property).toBeBetween(0.3, 0.7);
-		});
-	});
-	
-	it('signals end of rewind', function() {
-		var onRewindEnded = function() {
-			signaled = true;
-		};
-		var animation = new Manymation(onRewindEnded);
-		var signaled = false;
-		
-		runs(function() {
-			animation.play(500);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			animation.rewind(500);
-		});
-		
-		waits(1000);
-		
-		runs(function() {
-			expect(signaled).toBe(true);
-		});
-	});
-	
-	it('signals end of immediate rewind', function() {
-		var onRewindEnded = function() {
-			signaled = true;
-		};
-		var animation = new Manymation(onRewindEnded);
-		var signaled = false;
-		
-		animation.play(0);
-		animation.rewind(0);
-		expect(signaled).toBe(true);
-	});
-	
-	it('signals rewinding state', function() {
-		var animation = new Manymation();
-		expect(animation.isRewinding).toBe(false);
-		
-		animation.play(0);
-		expect(animation.isRewinding).toBe(false);
-		
-		runs(function() {
-			animation.rewind(500);
-		});
-		
-		waits(250);
-		
-		runs(function() {
-			expect(animation.isRewinding).toBe(true);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			expect(animation.isRewinding).toBe(false);
+			expect(target.property).toBe(2);
 		});
 	});
 });
