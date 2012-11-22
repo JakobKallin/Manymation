@@ -61,7 +61,12 @@ Manymation.Animation = function(duration, onEnded, targets) {
 		hasEnded = true;
 		
 		if ( onEnded ) {
-			onEnded();
+			if ( !(onEnded instanceof Array) ) {
+				onEnded = [onEnded];
+			}
+			onEnded.forEach(function(callback) {
+				callback();
+			});
 		}
 		complete();
 	};

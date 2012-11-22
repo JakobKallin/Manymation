@@ -214,7 +214,7 @@ describe('Manymation', function() {
 		});
 	});
 	
-	it('signals end of animation', function() {
+	it('runs callback after ending', function() {
 		var onEndedCalled = false;
 		var onEnded = function() {
 			onEndedCalled = true;
@@ -228,6 +228,23 @@ describe('Manymation', function() {
 		
 		runs(function() {
 			expect(onEndedCalled).toBe(true);
+		});
+	});
+	
+	it('runs multiple callbacks after ending', function() {
+		var onEndedCalledCount = 0;
+		var onEnded = function() {
+			onEndedCalledCount += 1;
+		};
+		
+		runs(function() {
+			Manymation.animate(250, [onEnded, onEnded]);			
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(onEndedCalledCount).toBe(2);
 		});
 	});
 });
