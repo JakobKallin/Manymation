@@ -4,7 +4,7 @@ window.requestAnimationFrame = window.webkitRequestAnimationFrame
 var Manymation = {};
 
 Manymation.animate = function(duration, onEnded, targets) {
-	var animation = new Animation(duration, onEnded, targets);
+	var animation = new Manymation.Animation(duration, onEnded, targets);
 	animation.start();
 	
 	return animation;

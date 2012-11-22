@@ -213,4 +213,21 @@ describe('Manymation', function() {
 			expect(target.property).toBe(2);
 		});
 	});
+	
+	it('signals end of animation', function() {
+		var onEndedCalled = false;
+		var onEnded = function() {
+			onEndedCalled = true;
+		};
+		
+		runs(function() {
+			Manymation.animate(250, onEnded);			
+		});
+		
+		waits(500);
+		
+		runs(function() {
+			expect(onEndedCalled).toBe(true);
+		});
+	});
 });
