@@ -11,7 +11,9 @@ describe('Manymation', function() {
 	});
 	
 	it('animates from zero to positive', function() {
-		var target = { property: undefined };
+		var target = {
+			property: undefined
+		};
 		var animation = new Manymation();
 		animation.track(target, 'property', 2);
 		
@@ -33,7 +35,9 @@ describe('Manymation', function() {
 	});
 	
 	it('reverses from positive to zero', function() {
-		var target = { property: undefined };
+		var target = {
+			property: undefined
+		};
 		var animation = new Manymation();
 		animation.track(target, 'property', 2);
 		
@@ -55,7 +59,9 @@ describe('Manymation', function() {
 	});
 	
 	it('animates constant animation', function() {
-		var target = { property: undefined };
+		var target = {
+			property: undefined
+		};
 		var animation = new Manymation();
 		animation.track(target, 'property', 0);
 		
@@ -77,7 +83,9 @@ describe('Manymation', function() {
 	});
 	
 	it('animates immediate animation', function() {
-		var target = { property: undefined };
+		var target = {
+			property: undefined
+		};
 		var animation = new Manymation();
 		animation.track(target, 'property', 2);
 		animation.play(0);
@@ -95,7 +103,9 @@ describe('Manymation', function() {
 	});
 	
 	it('plays and then reverses', function() {
-		var target = { property: undefined };
+		var target = {
+			property: undefined
+		};
 		var animation = new Manymation();
 		animation.track(target, 'property', 2);
 		
@@ -130,7 +140,9 @@ describe('Manymation', function() {
 	});
 	
 	it('plays after interrupting', function() {
-		var target = { property: undefined };
+		var target = {
+			property: undefined
+		};
 		var animation = new Manymation();
 		animation.track(target, 'property', 2);
 		
@@ -158,8 +170,12 @@ describe('Manymation', function() {
 	});
 	
 	it('animates multiple objects', function() {
-		var first = { property: undefined };
-		var second = { property: undefined };
+		var first = {
+			property: undefined
+		};
+		var second = {
+			property: undefined
+		};
 		
 		runs(function() {
 			var animation = new Manymation();
@@ -184,7 +200,9 @@ describe('Manymation', function() {
 	});
 	
 	it('animates objects added while playing', function() {
-		var target = { property: undefined };
+		var target = {
+			property: undefined
+		};
 		var animation = new Manymation();
 		
 		runs(function() {
@@ -211,7 +229,9 @@ describe('Manymation', function() {
 	});
 	
 	it('sets starting value during play', function() {
-		var target = { property: undefined };
+		var target = {
+			property: undefined
+		};
 		var animation = new Manymation();
 		
 		runs(function() {
@@ -228,7 +248,9 @@ describe('Manymation', function() {
 	
 	it('prevents value from being NaN', function() {
 		expect(function() {
-			var target = { property: undefined };
+			var target = {
+				property: undefined
+			};
 			var animation = new Manymation();
 			animation.track(target, 'property', NaN);
 			animation.play(0);
@@ -236,7 +258,9 @@ describe('Manymation', function() {
 	});
 	
 	it('stops animation when playing', function() {
-		var target = { property: undefined };
+		var target = {
+			property: undefined
+		};
 		var animation = new Manymation();
 		animation.track(target, 'property', 2);
 		
