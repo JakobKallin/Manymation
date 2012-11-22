@@ -221,7 +221,7 @@ describe('Manymation', function() {
 		};
 		
 		runs(function() {
-			Manymation.animate(250, onEnded);			
+			Manymation.animate(250, onEnded);
 		});
 		
 		waits(500);
@@ -238,13 +238,31 @@ describe('Manymation', function() {
 		};
 		
 		runs(function() {
-			Manymation.animate(250, [onEnded, onEnded]);			
+			Manymation.animate(250, [onEnded, onEnded]);
 		});
 		
 		waits(500);
 		
 		runs(function() {
 			expect(onEndedCalledCount).toBe(2);
+		});
+	});
+	
+	it('animates targets given in constructor', function() {
+		var target = {
+			property: undefined
+		};
+		var dummy = new Manymation.Animation(0);
+		dummy.track(target, 'property', 0, 2);
+		
+		runs(function() {
+			Manymation.animate(1000, undefined, dummy.targets);			
+		});
+		
+		waits(500);
+		
+		runs(function() {			
+			expect(target.property).toBeBetween(0.8, 1.2);
 		});
 	});
 });

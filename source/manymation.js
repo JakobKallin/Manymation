@@ -30,7 +30,7 @@ Manymation.Animation = function(duration, onEnded, targets) {
 			end(onEnded);
 		} else {
 			targets.map(function(target) {
-				target.update(progress(elapsedTime));
+				update(target, progress(elapsedTime));
 			});
 			window.requestAnimationFrame(tick);
 		}
@@ -68,47 +68,66 @@ Manymation.Animation = function(duration, onEnded, targets) {
 				callback();
 			});
 		}
+		
 		complete();
 	};
 	
 	var complete = function() {
 		targets.map(function(target) {
-			target.update(1);
+			update(target, 1);
 		});
 	};
 	
 	var Target = function(object, property, startValue, endValue) {
-		var difference = endValue - startValue;
-		var highestValue = Math.max(startValue, endValue);
-		var lowestValue = Math.min(startValue, endValue);
+		this.object = object;
+		this.property = property;
+		this.startValue = startValue;
+		this.endValue = endValue;
+	};
+	
+	Object.defineProperty(Target.prototype, 'difference', {
+		get: function() {
+			return this.endValue - this.startValue;
+		}
+	});
+	
+	Object.defineProperty(Target.prototype, 'highestValue', {
+		get: function() {
+			return Math.max(this.startValue, this.endValue);
+		}
+	});
+	
+	Object.defineProperty(Target.prototype, 'lowestValue', {
+		get: function() {
+			return Math.min(this.startValue, this.endValue);
+		}
+	});
+	
+	var update = function(target, progress) {
+		var value = target.startValue + progress * target.difference;
+		// console.log(elapsedTime + ": " + value);
 		
-		return {
-			update: function(progress) {
-				var value = startValue + progress * difference;
-				// console.log(elapsedTime + ": " + value);
-				
-				if ( isNaN(value) ) {
-					/*
-					 * This prevents a horrible bug in Chrome (and possibly
-					 * other browsers) that emits a loud noise if the volume of
-					 * an <audio> element is set to NaN. This should not
-					 * normally happen, but it is a way of guarding against
-					 * limitations of this library and bugs in its code.
-					 */
-					throw new Error('Animation value is not a number.');
-				} else {
-					var roundedValue = Math.min(Math.max(value, lowestValue),
-						highestValue);
-					object[property] = roundedValue;
-				}
-			}
-		};
+		if ( isNaN(value) ) {
+			/*
+			 * This prevents a horrible bug in Chrome (and possibly other
+			 * browsers) that emits a loud noise if the volume of an <audio>
+			 * element is set to NaN. This should not normally happen, but it is
+			 * a way of guarding against limitations of this library and bugs in
+			 * its code.
+			 */
+			throw new Error('Animation value is not a number.');
+		} else {
+			
+			var roundedValue = Math.min(Math.max(value, target.lowestValue),
+				target.highestValue);
+			target.object[target.property] = roundedValue;
+		}
 	};
 	
 	var track = function(object, property, startValue, endValue) {
 		var target = new Target(object, property, startValue, endValue)
 		targets.push(target);
-		target.update(progress(elapsedTime));
+		update(target, progress(elapsedTime));
 	};
 	
 	var progress = function(elapsedTime) {
@@ -125,6 +144,7 @@ Manymation.Animation = function(duration, onEnded, targets) {
 	
 	return {
 		track: track,
+		targets: targets,
 		start: start,
 		complete: complete
 	};
