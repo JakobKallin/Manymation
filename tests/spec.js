@@ -14,11 +14,11 @@ describe('Manymation', function() {
 		var target = {
 			property: undefined
 		};
-		var animation = new Manymation();
-		animation.track(target, 'property', 2);
+		var animation = new Manymation.Animation(500);
+		animation.track(target, 'property', 0, 2);
 		
 		runs(function() {
-			animation.play(500);
+			animation.start();
 		});
 		
 		waits(250);
@@ -34,15 +34,15 @@ describe('Manymation', function() {
 		});
 	});
 	
-	it('reverses from positive to zero', function() {
+	it('animates from positive to zero', function() {
 		var target = {
 			property: undefined
 		};
-		var animation = new Manymation();
-		animation.track(target, 'property', 2);
+		var animation = new Manymation.Animation(500);
+		animation.track(target, 'property', 2, 0);
 		
 		runs(function() {
-			animation.reverse(500);
+			animation.start();
 		});
 		
 		waits(250);
@@ -62,11 +62,11 @@ describe('Manymation', function() {
 		var target = {
 			property: undefined
 		};
-		var animation = new Manymation();
-		animation.track(target, 'property', 0);
+		var animation = new Manymation.Animation(500);
+		animation.track(target, 'property', 0, 0);
 		
 		runs(function() {
-			animation.play(500);
+			animation.start();
 		});
 		
 		waits(250);
@@ -86,87 +86,20 @@ describe('Manymation', function() {
 		var target = {
 			property: undefined
 		};
-		var animation = new Manymation();
-		animation.track(target, 'property', 2);
-		animation.play(0);
+		var animation = new Manymation.Animation(0);
+		animation.track(target, 'property', 0, 2);
+		animation.start();
 		expect(target.property).toBe(2)
 	});
 	
 	it('animates empty animation', function() {
-		var animation = new Manymation();
+		var animation = new Manymation.Animation(500);
 		
 		runs(function() {
-			animation.play(500);
+			animation.start();
 		});
 		
 		waits(1000);
-	});
-	
-	it('plays and then reverses', function() {
-		var target = {
-			property: undefined
-		};
-		var animation = new Manymation();
-		animation.track(target, 'property', 2);
-		
-		runs(function() {
-			animation.play(500);
-		});
-		
-		waits(250);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0.8, 1.2);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			expect(target.property).toBe(2);
-			animation.reverse(500);
-		});
-		
-		waits(250);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0.8, 1.2);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			expect(target.property).toBe(0);
-		});
-	});
-	
-	it('plays after interrupting', function() {
-		var target = {
-			property: undefined
-		};
-		var animation = new Manymation();
-		animation.track(target, 'property', 2);
-		
-		runs(function() {
-			animation.play(500);
-		});
-		
-		waits(250);
-		
-		runs(function() {
-			animation.play(500);
-		});
-		
-		waits(250);
-		
-		runs(function() {
-			expect(target.property).toBeBetween(0.8, 1.2);
-		});
-		
-		waits(500);
-		
-		runs(function() {
-			expect(target.property).toBe(2);
-		});
 	});
 	
 	it('animates multiple objects', function() {
@@ -178,10 +111,10 @@ describe('Manymation', function() {
 		};
 		
 		runs(function() {
-			var animation = new Manymation();
-			animation.track(first, 'property', 2);
-			animation.track(second, 'property', 2);
-			animation.play(1000);
+			var animation = new Manymation.Animation(1000);
+			animation.track(first, 'property', 0, 2);
+			animation.track(second, 'property', 0, 2);
+			animation.start();
 		});
 		
 		waits(500);
@@ -203,16 +136,16 @@ describe('Manymation', function() {
 		var target = {
 			property: undefined
 		};
-		var animation = new Manymation();
+		var animation = new Manymation.Animation(1000);
 		
 		runs(function() {
-			animation.play(1000);
+			animation.start();
 		});
 		
 		waits(250);
 		
 		runs(function() {
-			animation.track(target, 'property', 2);
+			animation.track(target, 'property', 0, 2);
 		});
 		
 		waits(250);
@@ -228,20 +161,20 @@ describe('Manymation', function() {
 		});
 	});
 	
-	it('sets starting value during play', function() {
+	it('sets starting value during animation', function() {
 		var target = {
 			property: undefined
 		};
-		var animation = new Manymation();
+		var animation = new Manymation.Animation(1000);
 		
 		runs(function() {
-			animation.play(1000);
+			animation.start();
 		});
 		
 		waits(500);
 		
 		runs(function() {
-			animation.track(target, 'property', 2);
+			animation.track(target, 'property', 0, 2);
 			expect(target.property).toBeBetween(0.8, 1.2);
 		});
 	});
@@ -251,9 +184,9 @@ describe('Manymation', function() {
 			var target = {
 				property: undefined
 			};
-			var animation = new Manymation();
-			animation.track(target, 'property', NaN);
-			animation.play(0);
+			var animation = new Manymation.Animation(0);
+			animation.track(target, 'property', 0, NaN);
+			animation.start();
 		}).toThrow();
 	});
 	
@@ -261,11 +194,11 @@ describe('Manymation', function() {
 		var target = {
 			property: undefined
 		};
-		var animation = new Manymation();
-		animation.track(target, 'property', 2);
+		var animation = new Manymation.Animation(1000);
+		animation.track(target, 'property', 0, 2);
 		
 		runs(function() {
-			animation.play(1000);
+			animation.start();
 		});
 		
 		waits(500);

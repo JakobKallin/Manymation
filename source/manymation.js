@@ -1,50 +1,50 @@
-window.requestAnimationFrame =
-	window.webkitRequestAnimationFrame ||
-	window.mozRequestAnimationFrame;
+window.requestAnimationFrame = window.webkitRequestAnimationFrame
+	|| window.mozRequestAnimationFrame;
 
-var Manymation = function() {
-	var targets = [];
-	var elapsed = 0;
-	var duration = 0;
-	var onEnded;
-	var reverse = false;
-	var start = 0;
-	var isRunning = false;
-	var isPlaying = false;
-	var isReversing = false;
+var Manymation = {};
+
+Manymation.animate = function(duration, onEnded, targets) {
+	var animation = new Animation(duration, onEnded, targets);
+	animation.start();
 	
-	var tick = function tick(time) {
-		time = time || Number(new Date());
-		elapsed = time - start;
+	return animation;
+};
+
+Manymation.Animation = function(duration, onEnded, targets) {
+	targets = targets || [];
+	
+	// This needs to be zero because we can track targets before starting the
+	// animation.
+	var elapsedTime = 0;
+	var startTime;
+	
+	var hasBegun = false;
+	var hasEnded = false;
+	
+	var tick = function tick() {
+		var time = Number(new Date());
+		elapsedTime = time - startTime;
 		
-		var isOver = elapsed >= duration || !isRunning;
+		var isOver = elapsedTime >= duration;
 		if ( isOver ) {
 			end(onEnded);
 		} else {
 			targets.map(function(target) {
-				target.update(elapsed);
+				target.update(progress(elapsedTime));
 			});
 			window.requestAnimationFrame(tick);
 		}
 	};
 	
-	var run = function(newDuration, newOnEnded, newReverse) {
-		if ( isRunning ) {
-			complete();
+	var start = function() {
+		if ( hasBegun ) {
+			return;
 		}
 		
-		elapsed = 0;
-		duration = newDuration;
-		onEnded = newOnEnded;
-		reverse = newReverse;
-		start = window.mozAnimationStartTime || Number(new Date());
+		hasBegun = true;
 		
-		isRunning = true;
-		if ( reverse ) {
-			isReversing = true;
-		} else {
-			isPlaying = true;
-		}
+		startTime = Number(new Date());
+		elapsedTime = 0;
 		
 		if ( duration === 0 ) {
 			end(onEnded);
@@ -53,15 +53,13 @@ var Manymation = function() {
 		}
 	};
 	
-	var play = function(duration, onEnded) {
-		run(duration, onEnded, false);
-	};
-	
-	var reverse = function(duration, onEnded) {
-		run(duration, onEnded, true);
-	};
-	
 	var end = function() {
+		if ( hasEnded ) {
+			return;
+		}
+		
+		hasEnded = true;
+		
 		if ( onEnded ) {
 			onEnded();
 		}
@@ -70,60 +68,59 @@ var Manymation = function() {
 	
 	var complete = function() {
 		targets.map(function(target) {
-			target.update(duration);
+			target.update(1);
 		});
-		isRunning = false;
-		isPlaying = false;
-		isReversing = false;
 	};
 	
-	var Target = function(object, property, endValue) {
+	var Target = function(object, property, startValue, endValue) {
+		var difference = endValue - startValue;
+		var highestValue = Math.max(startValue, endValue);
+		var lowestValue = Math.min(startValue, endValue);
+		
 		return {
-			update: function(elapsed) {
-				var value = progress(elapsed) * endValue;
-				if ( reverse ) {
-					value = endValue - value;
-				}
+			update: function(progress) {
+				var value = startValue + progress * difference;
+				// console.log(elapsedTime + ": " + value);
 				
 				if ( isNaN(value) ) {
-					// This prevents a horrible bug in Chrome (and possibly other browsers) that emits a loud noise if the volume of an <audio> element is set to NaN.
-					// This should not normally happen, but it is a way of guarding against limitations of this library and bugs in its code.
+					/*
+					 * This prevents a horrible bug in Chrome (and possibly
+					 * other browsers) that emits a loud noise if the volume of
+					 * an <audio> element is set to NaN. This should not
+					 * normally happen, but it is a way of guarding against
+					 * limitations of this library and bugs in its code.
+					 */
 					throw new Error('Animation value is not a number.');
 				} else {
-					var roundedValue = Math.min(Math.max(value, 0), endValue);
+					var roundedValue = Math.min(Math.max(value, lowestValue),
+						highestValue);
 					object[property] = roundedValue;
 				}
 			}
 		};
 	};
 	
-	var track = function(object, property, endValue) {
-		var target = new Target(object, property, endValue)
+	var track = function(object, property, startValue, endValue) {
+		var target = new Target(object, property, startValue, endValue)
 		targets.push(target);
-		
-		if ( isRunning ) {
-			target.update(elapsed);
-		}
+		target.update(progress(elapsedTime));
 	};
 	
-	var progress = function(elapsed) {
-		if ( elapsed === duration ) {
+	var progress = function(elapsedTime) {
+		if ( duration === 0 && !hasBegun ) {
+			return 0;
+		} else if ( duration === 0 && hasBegun ) {
+			return 1;
+		} else if ( hasEnded ) {
 			return 1;
 		} else {
-			return elapsed / duration;
+			return elapsedTime / duration;
 		}
 	};
 	
 	return {
 		track: track,
-		play: play,
-		reverse: reverse,
-		complete: complete,
-		get isPlaying() {
-			return isPlaying;
-		},
-		get isReversing() {
-			return isReversing;
-		}
+		start: start,
+		complete: complete
 	};
 };
