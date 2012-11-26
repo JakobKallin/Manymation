@@ -25,9 +25,9 @@ Manymation.Animation = function(duration, onEnded, targets) {
 		var time = Number(new Date());
 		elapsedTime = time - startTime;
 		
-		var isOver = elapsedTime >= duration;
+		var isOver = elapsedTime >= duration || hasEnded;
 		if ( isOver ) {
-			end(onEnded);
+			complete(onEnded);
 		} else {
 			targets.map(function(target) {
 				update(target, progress(elapsedTime));
@@ -47,13 +47,13 @@ Manymation.Animation = function(duration, onEnded, targets) {
 		elapsedTime = 0;
 		
 		if ( duration === 0 ) {
-			end(onEnded);
+			complete(onEnded);
 		} else {
 			window.requestAnimationFrame(tick);
 		}
 	};
 	
-	var end = function() {
+	var complete = function() {
 		if ( hasEnded ) {
 			return;
 		}
@@ -69,10 +69,6 @@ Manymation.Animation = function(duration, onEnded, targets) {
 			});
 		}
 		
-		complete();
-	};
-	
-	var complete = function() {
 		targets.map(function(target) {
 			update(target, 1);
 		});
@@ -105,7 +101,6 @@ Manymation.Animation = function(duration, onEnded, targets) {
 	
 	var update = function(target, progress) {
 		var value = target.startValue + progress * target.difference;
-		// console.log(elapsedTime + ": " + value);
 		
 		if ( isNaN(value) ) {
 			/*
